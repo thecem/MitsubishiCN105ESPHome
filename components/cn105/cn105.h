@@ -59,6 +59,12 @@ namespace esphome {
         void set_auto_sub_mode_sensor(esphome::text_sensor::TextSensor* Auto_sub_mode_sensor);
         void set_hp_uptime_connection_sensor(uptime::HpUpTimeConnectionSensor* hp_up_connection_sensor);
 
+        // PROXY-UART: Setter-Methode hinzufügen
+        void set_proxy_uart(uart::UARTComponent* uart) { 
+            proxy_uart_ = uart; 
+            ESP_LOGD(TAG, "Proxy UART initialisiert");
+        }
+
         //sensor::Sensor* compressor_frequency_sensor;
         binary_sensor::BinarySensor* iSee_sensor_ = nullptr;
         text_sensor::TextSensor* stage_sensor_{ nullptr }; // to save ref if needed
@@ -93,6 +99,9 @@ namespace esphome {
             nullptr;  // Sensor to store compressor frequency
         sensor::Sensor* outside_air_temperature_sensor_ =
             nullptr;  // Outside air temperature
+
+        // PROXY-UART: Deklaration hinzufügen
+        uart::UARTComponent* proxy_uart_{nullptr};
 
         // sensor to monitor heatpump connection time
         uptime::HpUpTimeConnectionSensor* hp_uptime_connection_sensor_ = nullptr;
@@ -197,7 +206,6 @@ namespace esphome {
 #endif
 #endif
 
-
     protected:
         // HeatPump object using the underlying Arduino library.
         // same as PolingComponent
@@ -278,68 +286,4 @@ namespace esphome {
         void debugClimate(const char* settingName);
 
 #ifndef USE_ESP32
-        void emulateMutex(const char* retryName, std::function<void()>&& f);
-#endif
-
-
-
-        void controlDelegate(const esphome::climate::ClimateCall& call);
-
-        void createPacket(uint8_t* packet);
-        void createInfoPacket(uint8_t* packet, uint8_t packetType);
-        heatpumpSettings currentSettings{};
-        wantedHeatpumpSettings wantedSettings{};
-        cycleManagement loopCycle{};
-
-#ifdef USE_ESP32
-        std::mutex wantedSettingsMutex;
-#else
-        volatile bool wantedSettingsMutex = false;
-#endif
-
-        unsigned long lastResponseMs;
-
-
-        uint32_t remote_temp_timeout_;
-        uint32_t debounce_delay_;
-
-        int baud_ = 0;
-        int tx_pin_ = -1;
-        int rx_pin_ = -1;
-
-
-
-        //HardwareSerial* _HardSerial{ nullptr };
-        unsigned long lastSend;
-        unsigned long lastConnectRqTimeMs;
-        unsigned long lastReconnectTimeMs;
-
-        uint8_t storedInputData[MAX_DATA_BYTES]; // multi-byte data
-        uint8_t* data;
-
-        // initialise to all off, then it will update shortly after connect;
-        heatpumpStatus currentStatus{ 0, 0, false, {TIMER_MODE_MAP[0], 0, 0, 0, 0}, 0, 0, 0, 0 };
-        heatpumpFunctions functions;
-
-        bool tempMode = false;
-        bool wideVaneAdj;
-        bool autoUpdate;
-        bool firstRun;
-        int infoMode;
-        bool externalUpdate;
-
-        // counter for status request for checking heatpump is still connected
-        // is the counter > MAX_NON_RESPONSE_REQ then we conclude uart is not connected anymore
-        int nonResponseCounter = 0;
-
-        int powerRequestWithoutResponses = 0;
-
-        bool isReading = false;
-        bool isWriting = false;
-
-        bool foundStart = false;
-        int bytesRead = 0;
-        int dataLength = 0;
-        uint8_t command = 0;
-    };
-}
+        void emulateM
