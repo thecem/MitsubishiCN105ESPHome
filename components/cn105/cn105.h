@@ -58,6 +58,10 @@ namespace esphome {
         void set_sub_mode_sensor(esphome::text_sensor::TextSensor* Sub_mode_sensor);
         void set_auto_sub_mode_sensor(esphome::text_sensor::TextSensor* Auto_sub_mode_sensor);
         void set_hp_uptime_connection_sensor(uptime::HpUpTimeConnectionSensor* hp_up_connection_sensor);
+        void set_proxy_uart(uart::UARTComponent* uart) { 
+          proxy_uart_ = uart; 
+          ESP_LOGD(TAG, "Proxy UART initialisiert");
+        }
 
         //sensor::Sensor* compressor_frequency_sensor;
         binary_sensor::BinarySensor* iSee_sensor_ = nullptr;
@@ -242,6 +246,7 @@ namespace esphome {
         void setHeatpumpConnected(bool state);
 
     private:
+        uart::UARTComponent* proxy_uart_{nullptr};
         const char* lookupByteMapValue(const char* valuesMap[], const uint8_t byteMap[], int len, uint8_t byteValue, const char* debugInfo = "", const char* defaultValue = nullptr);
         int lookupByteMapValue(const int valuesMap[], const uint8_t byteMap[], int len, uint8_t byteValue, const char* debugInfo = "");
         int lookupByteMapIndex(const char* valuesMap[], int len, const char* lookupValue, const char* debugInfo = "");
